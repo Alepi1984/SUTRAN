@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#0A5940">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SUTRAN">
+<link rel="manifest" href="manifest.json">
+<title>SUTRAN</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --g900:#052E20;--g800:#0A5940;--g700:#0F6E56;--g600:#178F6E;--g500:#1DB883;--g200:#9FE1CB;--g100:#D0F2E6;--g50:#EAF9F3;
+  --b700:#1244A3;--b500:#2563EB;--b100:#DBEAFE;--b50:#EFF6FF;
+  --r700:#991B1B;--r500:#EF4444;--r100:#FEE2E2;--r50:#FFF5F5;
+  --a700:#92400E;--a500:#F59E0B;--a100:#FEF3C7;--a50:#FFFBEB;
+  --gray900:#111827;--gray700:#374151;--gray500:#6B7280;--gray400:#9CA3AF;--gray300:#D1D5DB;--gray200:#E5E7EB;--gray100:#F3F4F6;--gray50:#F9FAFB;
+  --white:#fff;
+  --tp:var(--gray900);--ts:var(--gray500);--th:var(--gray400);
+  --bd:rgba(0,0,0,.08);--bdm:rgba(0,0,0,.13);
+  --r6:6px;--r10:10px;--r14:14px;--r20:20px;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--gray100);color:var(--tp);}
+#app{height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+.sb{height:var(--sat);background:var(--g800);}
+
+/* SCREENS */
+.scr{display:none;flex:1;overflow:hidden;flex-direction:column;}
+.scr.on{display:flex;}
+
+/* TOPBAR */
+.topbar{background:var(--g800);padding:13px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.topbar-login{padding:28px 20px 20px;}
+.bbtn{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.13);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.bbtn svg{width:20px;height:20px;fill:white;}
+.tname{font-size:16px;font-weight:600;color:white;flex:1;}
+.tsub{font-size:12px;color:rgba(255,255,255,.6);}
+
+/* LOGIN HERO */
+.hero-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+.hero-icon{width:46px;height:46px;background:rgba(255,255,255,.15);border-radius:14px;display:flex;align-items:center;justify-content:center;}
+.hero-icon svg{width:28px;height:28px;fill:white;}
+.hero-appname{font-size:22px;font-weight:600;color:white;}
+.hero-appsub{font-size:12px;color:rgba(255,255,255,.55);margin-top:1px;}
+.hero-title{font-size:26px;font-weight:600;color:white;line-height:1.25;}
+.hero-title em{color:rgba(255,255,255,.5);font-style:normal;font-weight:400;}
+
+/* BODY PANEL */
+.body-panel{background:var(--gray50);border-radius:var(--r20) var(--r20) 0 0;padding:22px 18px calc(20px + var(--sab));flex:1;overflow-y:auto;}
+.content{flex:1;overflow-y:auto;padding:14px 16px calc(12px + var(--sab));}
+
+/* SECTION TITLE */
+.sec{font-size:11px;font-weight:600;color:var(--th);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;}
+
+/* CARDS */
+.card{background:var(--white);border:.5px solid var(--bd);border-radius:var(--r14);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+.ctitle{font-size:11px;font-weight:600;color:var(--th);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;}
+
+/* CONDUCTOR PILL (login) */
+.cpill{display:flex;align-items:center;gap:12px;background:var(--white);border:.5px solid var(--bd);border-radius:var(--r14);padding:13px 14px;margin-bottom:8px;cursor:pointer;transition:.12s;box-shadow:var(--shadow);}
+.cpill:active{transform:scale(.98);box-shadow:none;}
+.av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;}
+.av-sm{width:34px;height:34px;font-size:12px;}
+.ci{flex:1;}
+.cn{font-size:15px;font-weight:500;}
+.cm{font-size:12px;color:var(--ts);margin-top:2px;}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.son{background:#10B981;}
+.soff{background:var(--gray300);}
+
+/* ADMIN BTN */
+.admbtn{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;padding:13px;border:.5px solid var(--bdm);border-radius:var(--r14);background:var(--white);cursor:pointer;color:var(--ts);font-size:14px;font-weight:500;box-shadow:var(--shadow);width:100%;}
+.admbtn:active{background:var(--gray100);}
+
+/* TABS */
+.tabs{display:flex;background:var(--white);border-bottom:.5px solid var(--bd);flex-shrink:0;}
+.tab{flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:500;color:var(--ts);cursor:pointer;border-bottom:2.5px solid transparent;transition:.15s;}
+.tab.on{color:var(--g700);border-bottom-color:var(--g500);}
+
+/* FORM FIELDS */
+.field{margin-bottom:13px;}
+.flabel{font-size:12px;font-weight:500;color:var(--gray700);margin-bottom:5px;display:flex;align-items:center;gap:6px;}
+.fnum{width:20px;height:20px;border-radius:50%;background:var(--g700);color:white;font-size:10px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+input,select,textarea{width:100%;padding:11px 13px;border:1.5px solid var(--gray300);border-radius:var(--r10);font-size:15px;font-family:var(--font);background:var(--white);color:var(--tp);outline:none;transition:border-color .15s;appearance:none;-webkit-appearance:none;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%236B7280' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;}
+input:focus,select:focus{border-color:var(--g600);box-shadow:0 0 0 3px rgba(29,184,131,.12);}
+input.err{border-color:var(--r500);background:var(--r50);}
+.ferr{font-size:12px;color:var(--r700);margin-top:4px;display:none;}
+.ferr.on{display:block;}
+
+/* KM PREVIEW */
+.kmprev{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r10);padding:10px;margin-bottom:12px;}
+.kpv{font-size:26px;font-weight:600;font-family:var(--mono);color:var(--g700);}
+.kpl{font-size:13px;color:var(--g700);}
+
+/* ROUTE CHECKBOXES */
+.route-options{display:flex;flex-direction:column;gap:6px;}
+.ropt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--gray300);border-radius:var(--r10);cursor:pointer;transition:.12s;background:var(--white);}
+.ropt.sel{border-color:var(--g600);background:var(--g50);}
+.ropt input[type=checkbox]{width:16px;height:16px;accent-color:var(--g700);flex-shrink:0;cursor:pointer;}
+.ropt-label{font-size:14px;font-weight:500;cursor:pointer;}
+
+/* ROUTE TEXT FALLBACK */
+.rtext-note{font-size:12px;color:var(--ts);margin-bottom:6px;}
+
+/* BUTTONS */
+.btn{width:100%;padding:13px;border-radius:var(--r10);font-size:15px;font-weight:600;font-family:var(--font);cursor:pointer;border:none;transition:.13s;margin-top:6px;}
+.btn:active{transform:scale(.98);}
+.btn-g{background:var(--g700);color:white;}
+.btn-g:hover{background:var(--g800);}
+.btn-ghost{background:transparent;color:var(--ts);border:1.5px solid var(--gray300);margin-top:8px;}
+.btn-red{background:var(--r100);color:var(--r700);border:none;}
+.btn-blue{background:var(--b100);color:var(--b700);border:none;}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:var(--r6);width:auto;margin-top:0;}
+
+/* STATS */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.sbox{background:var(--white);border:.5px solid var(--bd);border-radius:var(--r14);padding:12px 14px;box-shadow:var(--shadow);}
+.sval{font-size:22px;font-weight:600;color:var(--tp);font-family:var(--mono);}
+.slbl{font-size:11px;color:var(--ts);margin-top:3px;}
+
+/* RECORDS */
+.rec{padding:12px 0;border-bottom:.5px solid var(--bd);}
+.rec:last-child{border-bottom:none;}
+.rh{display:flex;justify-content:space-between;align-items:flex-start;}
+.rkm{font-size:15px;font-weight:600;font-family:var(--mono);}
+.rdate{font-size:12px;color:var(--ts);margin-top:3px;}
+.rdet{font-size:12px;color:var(--th);font-family:var(--mono);margin-top:2px;}
+.rroute{font-size:12px;color:var(--ts);margin-top:2px;}
+.tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.tok{background:var(--g100);color:var(--g800);}
+.tact{background:var(--a100);color:var(--a700);}
+.terr{background:var(--r100);color:var(--r700);}
+
+/* EXPORT BTN */
+.ebtn{display:flex;align-items:center;gap:8px;width:100%;padding:11px 14px;background:var(--b50);color:var(--b700);border:1px solid var(--b100);border-radius:var(--r10);font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;margin-bottom:8px;transition:.12s;}
+.ebtn:active{background:var(--b100);}
+.ebtn svg{width:16px;height:16px;flex-shrink:0;}
+
+/* ADMIN CRUD */
+.admrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:.5px solid var(--bd);}
+.admrow:last-child{border-bottom:none;}
+.ainfo{flex:1;}
+.aname{font-size:14px;font-weight:500;}
+.ameta{font-size:12px;color:var(--ts);margin-top:2px;}
+.aact{display:flex;gap:6px;}
+.ibtn{width:32px;height:32px;border-radius:var(--r6);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:.12s;}
+.ibtn-e{background:var(--b100);color:var(--b700);}
+.ibtn-d{background:var(--r100);color:var(--r700);}
+.ibtn:active{transform:scale(.93);}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center;}
+.modal-bg.hidden{display:none;}
+.modal{background:var(--white);border-radius:var(--r20) var(--r20) 0 0;padding:20px 20px calc(20px + var(--sab));width:100%;max-height:88vh;overflow-y:auto;}
+.modal-title{font-size:17px;font-weight:600;margin-bottom:16px;}
+.modal-btns{display:flex;gap:8px;margin-top:12px;}
+.modal-btns .btn{margin-top:0;}
+
+/* VEHICLE BADGE */
+.vbadge{display:flex;align-items:center;gap:10px;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r10);padding:10px 12px;margin-bottom:14px;}
+.vbico{width:34px;height:34px;background:var(--g700);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.vbico svg{width:20px;height:20px;fill:white;}
+.vplate{font-size:15px;font-weight:600;font-family:var(--mono);color:var(--g800);letter-spacing:.05em;}
+.vdet{font-size:12px;color:var(--g700);margin-top:2px;}
+
+/* ACTIVE BADGE */
+.actbadge{display:flex;align-items:center;gap:8px;background:var(--a50);border:1px solid var(--a100);border-radius:var(--r10);padding:10px 14px;margin-bottom:12px;}
+.pulse{width:8px;height:8px;border-radius:50%;background:#F59E0B;animation:pulse 1.5s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.acttxt{font-size:13px;color:var(--a700);font-weight:500;}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(20px + var(--sab));left:50%;transform:translateX(-50%) translateY(80px);background:var(--gray900);color:white;font-size:13px;font-weight:500;padding:10px 20px;border-radius:30px;opacity:0;transition:all .3s;white-space:nowrap;z-index:999;pointer-events:none;}
+.toast.on{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* INSTALL BANNER */
+#ibanner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--bd);padding:14px 18px calc(14px + var(--sab));z-index:150;}
+#ibanner.on{display:block;}
+.irow{display:flex;align-items:center;gap:12px;}
+.iico{width:44px;height:44px;background:var(--g700);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.itxt{flex:1;}
+.itit{font-size:14px;font-weight:600;}
+.isub{font-size:12px;color:var(--ts);margin-top:1px;}
+.instbtn{background:var(--g700);color:white;border:none;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;}
+.iclo{background:none;border:none;color:var(--th);font-size:22px;cursor:pointer;}
+
+.empty{text-align:center;padding:24px 16px;color:var(--th);font-size:13px;}
+.empty svg{width:36px;height:36px;fill:var(--gray300);display:block;margin:0 auto 8px;}
+.divider{height:.5px;background:var(--bd);margin:12px 0;}
+.note{font-size:12px;color:var(--ts);text-align:center;margin-top:8px;}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="sb"></div>
+
+<!-- ══════════ PANTALLA PRINCIPAL (LOGIN) ══════════ -->
+<div id="s-login" class="scr on">
+  <div class="topbar topbar-login">
+    <div>
+      <div class="hero-logo">
+        <div class="hero-icon">
+          <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm11 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3zM5.5 10l1.5-4.5h11L19.5 10H5.5z"/></svg>
+        </div>
+        <div><div class="hero-appname">SUTRAN</div><div class="hero-appsub">Control de recorridos</div></div>
+      </div>
+      <div class="hero-title">Bienvenido<br><em>Selecciona tu nombre</em></div>
+    </div>
+  </div>
+  <div class="body-panel">
+    <div class="sec">Conductores registrados</div>
+    <div id="login-list"></div>
+    <button class="admbtn" onclick="openAdmin()">
+      <svg style="width:17px;height:17px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a5 5 0 110 10A5 5 0 0112 1zm0 12c5.33 0 8 2.67 8 4v2H4v-2c0-1.33 2.67-4 8-4z"/></svg>
+      Administrador
+    </button>
+  </div>
+</div>
+
+<!-- ══════════ CONDUCTOR ══════════ -->
+<div id="s-conductor" class="scr">
+  <div class="topbar">
+    <button class="bbtn" onclick="goTo('s-login')"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
+    <div style="flex:1;"><div class="tname" id="cd-name">—</div><div class="tsub" id="cd-sub">—</div></div>
+  </div>
+  <div class="tabs">
+    <div class="tab on"  onclick="swTab(this,'t-reg')">Registrar</div>
+    <div class="tab"     onclick="swTab(this,'t-hist')">Historial</div>
+    <div class="tab"     onclick="swTab(this,'t-rep')">Mi reporte</div>
+  </div>
+  <div class="content">
+
+    <!-- ── REGISTRAR ── -->
+    <div id="t-reg">
+      <!-- UNIDAD seleccionada badge -->
+      <div id="vbadge" class="vbadge" style="display:none;">
+        <div class="vbico"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg></div>
+        <div><div class="vplate" id="vb-plate">—</div><div class="vdet" id="vb-det">—</div></div>
+      </div>
+
+      <div class="card">
+        <!-- 0. UNIDAD MOVIL -->
+        <div class="field">
+          <div class="flabel"><span class="fnum">&#9654;</span> Unidad Móvil</div>
+          <select id="f-unidad" onchange="onUnidadChange()">
+            <option value="">— Selecciona la unidad —</option>
+          </select>
+        </div>
+
+        <!-- 1. FECHA -->
+        <div class="field">
+          <div class="flabel"><span class="fnum">1</span> Fecha</div>
+          <input type="date" id="f-fecha">
+        </div>
+
+        <!-- 2. KM INICIAL -->
+        <div class="field">
+          <div class="flabel"><span class="fnum">2</span> Km inicial (odómetro)</div>
+          <input type="number" id="f-km-ini" placeholder="Ej: 45320" min="0" oninput="onKmChange()">
+          <div class="ferr" id="err-km-ini"></div>
+          <div id="km-ref" style="font-size:12px;color:var(--ts);margin-top:4px;display:none;"></div>
+        </div>
+
+        <!-- 3. KM FINAL -->
+        <div class="field">
+          <div class="flabel"><span class="fnum">3</span> Km final (odómetro)</div>
+          <input type="number" id="f-km-fin" placeholder="Ej: 45580" min="0" oninput="onKmChange()">
+          <div class="ferr" id="err-km-fin"></div>
+        </div>
+
+        <!-- KM PREVIEW -->
+        <div id="kmprev" class="kmprev" style="display:none;">
+          <span class="kpv" id="kpv">0</span><span class="kpl">km de recorrido</span>
+        </div>
+
+        <!-- 4 y 5. HORAS -->
+        <div class="frow">
+          <div class="field">
+            <div class="flabel"><span class="fnum">4</span> Hora inicio</div>
+            <input type="time" id="f-hora-ini">
+          </div>
+          <div class="field">
+            <div class="flabel"><span class="fnum">5</span> Hora fin</div>
+            <input type="time" id="f-hora-fin">
+          </div>
+        </div>
+
+        <!-- 6. RECORRIDO / RUTA -->
+        <div class="field">
+          <div class="flabel"><span class="fnum">6</span> Recorrido / Ruta</div>
+          <div id="route-options" class="route-options"></div>
+          <div class="divider"></div>
+          <div class="rtext-note">O escribe una ruta personalizada:</div>
+          <input type="text" id="f-ruta-custom" placeholder="Ej: Lima → Huancayo (opcional)">
+        </div>
+
+        <!-- NOTAS -->
+        <div class="field">
+          <div class="flabel" style="color:var(--th);">Notas adicionales</div>
+          <input type="text" id="f-notas" placeholder="Observaciones, incidencias, combustible...">
+        </div>
+
+        <button class="btn btn-g" onclick="guardarRegistro()">&#10003;&nbsp; Guardar registro</button>
+      </div>
+    </div>
+
+    <!-- ── HISTORIAL ── -->
+    <div id="t-hist" style="display:none;">
+      <div class="sgrid">
+        <div class="sbox"><div class="sval" id="h-km">0</div><div class="slbl">Km totales</div></div>
+        <div class="sbox"><div class="sval" id="h-n">0</div><div class="slbl">Registros</div></div>
+        <div class="sbox"><div class="sval" id="h-hoy">0</div><div class="slbl">Km hoy</div></div>
+        <div class="sbox"><div class="sval" id="h-prom">0</div><div class="slbl">Prom km/día</div></div>
+      </div>
+      <div class="card"><div class="ctitle">Mis registros recientes</div><div id="hist-list"></div></div>
+    </div>
+
+    <!-- ── MI REPORTE ── -->
+    <div id="t-rep" style="display:none;">
+      <div class="card">
+        <div class="ctitle">Descargar mi reporte Excel</div>
+        <div class="field"><div class="flabel">Mes</div><input type="month" id="r-mes"></div>
+        <button class="ebtn" onclick="exportarMio()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/></svg>
+          Descargar Excel de mis turnos
+        </button>
+        <p class="note">Solo los registros donde tú eres el conductor</p>
+      </div>
+      <div class="card" id="prev-card">
+        <div class="ctitle">Resumen del mes</div>
+        <div id="prev-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ADMINISTRADOR ══════════ -->
+<div id="s-admin" class="scr">
+  <div class="topbar">
+    <button class="bbtn" onclick="goTo('s-login')"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
+    <div style="flex:1;"><div class="tname">Administrador</div><div class="tsub" id="adm-fecha">—</div></div>
+  </div>
+  <div class="tabs">
+    <div class="tab on" onclick="swTab(this,'adm-hoy')">Hoy</div>
+    <div class="tab"    onclick="swTab(this,'adm-cond')">Conductores</div>
+    <div class="tab"    onclick="swTab(this,'adm-uni')">Unidades</div>
+    <div class="tab"    onclick="swTab(this,'adm-rutas')">Rutas</div>
+    <div class="tab"    onclick="swTab(this,'adm-exp')">Exportar</div>
+  </div>
+  <div class="content">
+
+    <!-- HOY -->
+    <div id="adm-hoy">
+      <div class="sgrid">
+        <div class="sbox"><div class="sval" id="a-kmh">0</div><div class="slbl">Km total hoy</div></div>
+        <div class="sbox"><div class="sval" id="a-nh">0</div><div class="slbl">Registros hoy</div></div>
+        <div class="sbox"><div class="sval" id="a-kmes">0</div><div class="slbl">Km este mes</div></div>
+        <div class="sbox"><div class="sval" id="a-total">0</div><div class="slbl">Total registros</div></div>
+      </div>
+      <div class="card"><div class="ctitle">Actividad de hoy por unidad</div><div id="adm-hoy-list"></div></div>
+    </div>
+
+    <!-- CONDUCTORES CRUD -->
+    <div id="adm-cond" style="display:none;">
+      <div class="card">
+        <div class="ctitle">Conductores registrados</div>
+        <div id="cond-list"></div>
+        <button class="btn btn-g" style="margin-top:12px;" onclick="openModalCond()">+ Agregar conductor</button>
+      </div>
+    </div>
+
+    <!-- UNIDADES CRUD -->
+    <div id="adm-uni" style="display:none;">
+      <div class="card">
+        <div class="ctitle">Unidades registradas</div>
+        <div id="uni-list"></div>
+        <button class="btn btn-g" style="margin-top:12px;" onclick="openModalUni()">+ Agregar unidad</button>
+      </div>
+    </div>
+
+    <!-- RUTAS CRUD -->
+    <div id="adm-rutas" style="display:none;">
+      <div class="card">
+        <div class="ctitle">Catálogo de rutas / recorridos</div>
+        <p style="font-size:12px;color:var(--ts);margin-bottom:12px;">Los conductores pueden marcar estas rutas (con check) al registrar su turno.</p>
+        <div id="ruta-list"></div>
+        <button class="btn btn-g" style="margin-top:12px;" onclick="openModalRuta()">+ Agregar ruta</button>
+      </div>
+    </div>
+
+    <!-- EXPORTAR -->
+    <div id="adm-exp" style="display:none;">
+      <div class="card">
+        <div class="ctitle">Exportar reporte por unidad</div>
+        <div class="field"><div class="flabel">Mes</div><input type="month" id="adm-exmes"></div>
+        <p class="note" style="margin-bottom:10px;">Cada botón genera un archivo Excel independiente para esa unidad</p>
+        <div id="exp-uni-btns"></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Exportar toda la flota</div>
+        <button class="ebtn" onclick="exportarFlota()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/></svg>
+          Flota completa — una hoja por unidad
+        </button>
+        <p class="note">Incluye todos los registros del mes seleccionado</p>
+      </div>
+      <div class="card">
+        <div class="ctitle">Exportar por conductor</div>
+        <div id="exp-cond-btns"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- ══════ MODALES ══════ -->
+
+<!-- Modal Conductor -->
+<div class="modal-bg hidden" id="modal-cond">
+  <div class="modal">
+    <div class="modal-title" id="mc-title">Agregar conductor</div>
+    <div class="field"><div class="flabel">Nombre completo</div><input type="text" id="mc-nombre" placeholder="Ej: Juan García"></div>
+    <div class="field"><div class="flabel">Teléfono (opcional)</div><input type="text" id="mc-tel" placeholder="Ej: 987654321"></div>
+    <div class="modal-btns">
+      <button class="btn btn-g" onclick="guardarCond()" style="flex:1;">Guardar</button>
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-cond')" style="flex:1;margin-top:0;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Unidad -->
+<div class="modal-bg hidden" id="modal-uni">
+  <div class="modal">
+    <div class="modal-title" id="mu-title">Agregar unidad</div>
+    <div class="field"><div class="flabel">Nombre / Código de unidad</div><input type="text" id="mu-nombre" placeholder="Ej: Unidad 01"></div>
+    <div class="field"><div class="flabel">Placa</div><input type="text" id="mu-placa" placeholder="Ej: ABC-123" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"></div>
+    <div class="field"><div class="flabel">Marca y modelo</div><input type="text" id="mu-marca" placeholder="Ej: Toyota Hiace 2022"></div>
+    <div class="field"><div class="flabel">Km actual del odómetro</div><input type="number" id="mu-km" placeholder="Ej: 45320" min="0"></div>
+    <div class="modal-btns">
+      <button class="btn btn-g" onclick="guardarUni()" style="flex:1;">Guardar</button>
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-uni')" style="flex:1;margin-top:0;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ruta -->
+<div class="modal-bg hidden" id="modal-ruta">
+  <div class="modal">
+    <div class="modal-title" id="mr-title">Agregar ruta</div>
+    <div class="field"><div class="flabel">Nombre de la ruta</div><input type="text" id="mr-nombre" placeholder="Ej: Lima → Callao"></div>
+    <div class="modal-btns">
+      <button class="btn btn-g" onclick="guardarRuta()" style="flex:1;">Guardar</button>
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-ruta')" style="flex:1;margin-top:0;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="ibanner">
+  <div class="irow">
+    <div class="iico"><svg viewBox="0 0 24 24" fill="white" style="width:24px;height:24px;"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg></div>
+    <div class="itxt"><div class="itit">Instalar FleetTrack</div><div class="isub">Acceso rápido desde tu pantalla de inicio</div></div>
+    <button class="instbtn" onclick="installPWA()">Instalar</button>
+    <button class="iclo" onclick="document.getElementById('ibanner').classList.remove('on')">&#215;</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  STORAGE
+// ══════════════════════════════════════════════════
+const K = { conductores:'ft_cond3', unidades:'ft_uni3', rutas:'ft_rutas3', registros:'ft_reg3' };
+const load = k => { try{ return JSON.parse(localStorage.getItem(K[k])||'[]'); }catch(e){ return []; } };
+const save = (k,v) => localStorage.setItem(K[k], JSON.stringify(v));
+const uid  = () => Date.now() + Math.random().toString(36).slice(2,6);
+
+// INIT DATA — se ejecuta solo la primera vez
+function initData(){
+  let conds = load('conductores');
+  if(!conds.length){
+    conds = [
+      {id:uid(),nombre:"Conductor 1",tel:""},
+      {id:uid(),nombre:"Conductor 2",tel:""},
+      {id:uid(),nombre:"Conductor 3",tel:""},
+      {id:uid(),nombre:"Conductor 4",tel:""},
+      {id:uid(),nombre:"Conductor 5",tel:""},
+      {id:uid(),nombre:"Conductor 6",tel:""},
+    ];
+    save('conductores',conds);
+  }
+  let unis = load('unidades');
+  if(!unis.length){
+    unis = [
+      {id:uid(),nombre:"Unidad 01",placa:"AAA-001",marca:"Toyota Hiace",   kmActual:0},
+      {id:uid(),nombre:"Unidad 02",placa:"BBB-002",marca:"Hyundai H1",     kmActual:0},
+      {id:uid(),nombre:"Unidad 03",placa:"CCC-003",marca:"Toyota Hiace",   kmActual:0},
+      {id:uid(),nombre:"Unidad 04",placa:"DDD-004",marca:"Nissan Urvan",   kmActual:0},
+      {id:uid(),nombre:"Unidad 05",placa:"EEE-005",marca:"Kia Bongo",      kmActual:0},
+      {id:uid(),nombre:"Unidad 06",placa:"FFF-006",marca:"Mercedes Sprinter",kmActual:0},
+    ];
+    save('unidades',unis);
+  }
+  let rutas = load('rutas');
+  if(!rutas.length){
+    rutas = [
+      {id:uid(),nombre:"Ruta principal"},
+      {id:uid(),nombre:"Reparto local"},
+      {id:uid(),nombre:"Traslado especial"},
+    ];
+    save('rutas',rutas);
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  ESTADO GLOBAL
+// ══════════════════════════════════════════════════
+let currentCond = null; // conductor seleccionado
+let editId = { cond:null, uni:null, ruta:null };
+let deferPWA = null;
+
+// ══════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════
+const $  = id => document.getElementById(id);
+const gi = id => ($(id)||{}).value || '';
+const si = (id,v,p='value') => { const el=$(id); if(el) el[p]=v; };
+const today = () => new Date().toISOString().split('T')[0];
+const nowTime = () => new Date().toTimeString().slice(0,5);
+const initials = n => n.trim().split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const colors = ['#0F6E56','#1244A3','#854F0B','#7C3AED','#991B1B','#065F46','#1E40AF','#92400E'];
+const bgs    = ['#E1F5EE','#DBEAFE','#FAEEDA','#EDE9FE','#FEE2E2','#D1FAE5','#E0E7FF','#FEF3C7'];
+const condColor = (idx) => ({ c: colors[idx % colors.length], bg: bgs[idx % bgs.length] });
+
+function showToast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),2800); }
+function goTo(id){ document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on')); $(id).classList.add('on'); }
+function swTab(el,tid){
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('on')); el.classList.add('on');
+  el.closest('.scr').querySelector('.content').querySelectorAll(':scope>div').forEach(d=>d.style.display='none');
+  $(tid).style.display='block';
+  if(tid==='t-hist') renderHist();
+  if(tid==='t-rep'){ renderPrev(); si('r-mes', new Date().toISOString().slice(0,7)); renderPrev(); }
+  if(tid==='adm-hoy') renderAdmHoy();
+  if(tid==='adm-cond') renderCondList();
+  if(tid==='adm-uni') renderUniList();
+  if(tid==='adm-rutas') renderRutaList();
+  if(tid==='adm-exp') renderExpBtns();
+}
+function cerrarModal(id){ $(id).classList.add('hidden'); }
+function openModal(id){ $(id).classList.remove('hidden'); }
+
+// ══════════════════════════════════════════════════
+//  LOGIN / PANTALLA PRINCIPAL
+// ══════════════════════════════════════════════════
+function renderLoginList(){
+  const conds = load('conductores');
+  const regs  = load('registros');
+  const el = $('login-list');
+  if(!conds.length){ el.innerHTML='<div class="empty">No hay conductores. El administrador debe agregarlos.</div>'; return; }
+  el.innerHTML = conds.map((c,i)=>{
+    const cc = condColor(i);
+    const lastReg = regs.filter(r=>r.condId===c.id).sort((a,b)=>b.id-a.id)[0];
+    const act = lastReg && !lastReg.kmFin;
+    return `<div class="cpill" onclick="selectCond('${c.id}')">
+      <div class="av" style="background:${cc.bg};color:${cc.c}">${initials(c.nombre)}</div>
+      <div class="ci">
+        <div class="cn">${c.nombre}</div>
+        <div class="cm">${lastReg?`Último: ${lastReg.fecha} · ${lastReg.kmFin?lastReg.kmFin.toLocaleString()+' km':('km '+lastReg.kmIni)}`:'Sin registros'}</div>
+      </div>
+      <div class="sdot ${act?'son':'soff'}"></div>
+    </div>`;
+  }).join('');
+}
+
+function selectCond(id){
+  const conds = load('conductores');
+  currentCond = conds.find(c=>c.id===id);
+  if(!currentCond) return;
+  const i = conds.indexOf(currentCond);
+  const cc = condColor(i);
+  si('cd-name', currentCond.nombre, 'textContent');
+  si('cd-sub', 'Conductor', 'textContent');
+
+  // reset form
+  fillUnidadSelect();
+  fillRouteOptions();
+  si('f-fecha', today());
+  si('f-hora-ini', nowTime());
+  si('f-hora-fin', nowTime());
+  si('f-km-ini',''); si('f-km-fin','');
+  si('f-ruta-custom',''); si('f-notas','');
+  $('kmprev').style.display='none';
+  $('vbadge').style.display='none';
+  $('err-km-ini').classList.remove('on'); $('err-km-fin').classList.remove('on');
+  $('km-ref').style.display='none';
+  si('r-mes', new Date().toISOString().slice(0,7));
+
+  // reset tabs
+  document.querySelectorAll('#s-conductor .tab').forEach((t,i)=>t.classList.toggle('on',i===0));
+  ['t-reg','t-hist','t-rep'].forEach((id,i)=>$(id).style.display=i===0?'block':'none');
+  goTo('s-conductor');
+}
+
+// ══════════════════════════════════════════════════
+//  FORM — UNIDAD
+// ══════════════════════════════════════════════════
+function fillUnidadSelect(){
+  const unis = load('unidades');
+  const sel = $('f-unidad');
+  sel.innerHTML = '<option value="">— Selecciona la unidad —</option>' +
+    unis.map(u=>`<option value="${u.id}">${u.nombre} · ${u.placa} · ${u.marca}</option>`).join('');
+}
+
+function onUnidadChange(){
+  const uid = gi('f-unidad');
+  const unis = load('unidades');
+  const u = unis.find(x=>x.id===uid);
+  const vb = $('vbadge');
+  if(u){
+    si('vb-plate', u.placa, 'textContent');
+    si('vb-det', u.nombre+' · '+u.marca, 'textContent');
+    vb.style.display='flex';
+    // mostrar km de referencia
+    const regs = load('registros').filter(r=>r.uniId===uid&&r.kmFin).sort((a,b)=>b.id-a.id);
+    const lastKm = regs[0]?.kmFin || u.kmActual;
+    const kmRef = $('km-ref');
+    if(lastKm>0){
+      kmRef.textContent = '↑ Último km registrado en esta unidad: '+lastKm.toLocaleString();
+      kmRef.style.display='block';
+    } else { kmRef.style.display='none'; }
+  } else { vb.style.display='none'; $('km-ref').style.display='none'; }
+  onKmChange();
+}
+
+// ══════════════════════════════════════════════════
+//  FORM — VALIDACIÓN KM
+// ══════════════════════════════════════════════════
+function onKmChange(){
+  const uniId = gi('f-unidad');
+  const kmIni = parseInt(gi('f-km-ini'))||0;
+  const kmFin = parseInt(gi('f-km-fin'))||0;
+  const errIni = $('err-km-ini'), errFin = $('err-km-fin');
+  errIni.classList.remove('on'); errFin.classList.remove('on');
+  $('f-km-ini').classList.remove('err'); $('f-km-fin').classList.remove('err');
+
+  // Validar km inicial vs último registrado
+  if(uniId && kmIni > 0){
+    const unis = load('unidades');
+    const regs = load('registros').filter(r=>r.uniId===uniId&&r.kmFin).sort((a,b)=>b.id-a.id);
+    const u = unis.find(x=>x.id===uniId);
+    const lastKm = regs[0]?.kmFin || u?.kmActual || 0;
+    if(lastKm>0 && kmIni <= lastKm){
+      $('f-km-ini').classList.add('err');
+      errIni.textContent = `⚠ Km inicial (${kmIni.toLocaleString()}) debe ser mayor al último registrado (${lastKm.toLocaleString()})`;
+      errIni.classList.add('on');
+    }
+  }
+
+  // Km final vs inicial
+  if(kmFin>0 && kmIni>0 && kmFin <= kmIni){
+    $('f-km-fin').classList.add('err');
+    errFin.textContent = `⚠ Km final debe ser mayor al km inicial`;
+    errFin.classList.add('on');
+  }
+
+  // Preview
+  const prev = $('kmprev');
+  if(kmIni>0 && kmFin>kmIni){
+    si('kpv', (kmFin-kmIni).toLocaleString(), 'textContent');
+    prev.style.display='flex';
+  } else { prev.style.display='none'; }
+}
+
+// ══════════════════════════════════════════════════
+//  FORM — RUTAS CHECKBOXES
+// ══════════════════════════════════════════════════
+function fillRouteOptions(){
+  const rutas = load('rutas');
+  const el = $('route-options');
+  if(!rutas.length){ el.innerHTML='<div style="font-size:13px;color:var(--th);">El administrador aún no ha cargado rutas.</div>'; return; }
+  el.innerHTML = rutas.map(r=>`
+    <label class="ropt" id="ropt-${r.id}" onclick="toggleRopt('${r.id}',this)">
+      <input type="checkbox" id="chk-${r.id}" value="${r.nombre}">
+      <span class="ropt-label">${r.nombre}</span>
+    </label>`).join('');
+}
+
+function toggleRopt(id, el){
+  const chk = $('chk-'+id);
+  chk.checked = !chk.checked;
+  el.classList.toggle('sel', chk.checked);
+}
+
+function getSelectedRoutes(){
+  const rutas = load('rutas');
+  const sel = rutas.filter(r=>{ const c=$('chk-'+r.id); return c&&c.checked; }).map(r=>r.nombre);
+  const custom = gi('f-ruta-custom').trim();
+  if(custom) sel.push(custom);
+  return sel;
+}
+
+// ══════════════════════════════════════════════════
+//  GUARDAR REGISTRO
+// ══════════════════════════════════════════════════
+function guardarRegistro(){
+  // Validaciones
+  const uniId   = gi('f-unidad');
+  const fecha   = gi('f-fecha');
+  const kmIniS  = gi('f-km-ini');
+  const kmFinS  = gi('f-km-fin');
+  const horaIni = gi('f-hora-ini');
+  const horaFin = gi('f-hora-fin');
+
+  if(!uniId)     { showToast('Selecciona una unidad'); return; }
+  if(!fecha)     { showToast('Ingresa la fecha'); return; }
+  if(!kmIniS)    { showToast('Ingresa el km inicial'); return; }
+  if(!horaIni)   { showToast('Ingresa la hora de inicio'); return; }
+
+  const kmIni = parseInt(kmIniS);
+  const kmFin = kmFinS ? parseInt(kmFinS) : null;
+
+  // Validar contra último km
+  const unis = load('unidades');
+  const regsUni = load('registros').filter(r=>r.uniId===uniId&&r.kmFin).sort((a,b)=>b.id-a.id);
+  const u = unis.find(x=>x.id===uniId);
+  const lastKm = regsUni[0]?.kmFin || u?.kmActual || 0;
+  if(lastKm>0 && kmIni <= lastKm){
+    showToast(`⚠ Km inicial debe ser mayor a ${lastKm.toLocaleString()}`);
+    $('f-km-ini').classList.add('err');
+    $('err-km-ini').textContent=`Debe ser mayor a ${lastKm.toLocaleString()}`;
+    $('err-km-ini').classList.add('on');
+    return;
+  }
+  if(kmFin!==null && kmFin<=kmIni){ showToast('Km final debe ser mayor al inicial'); return; }
+
+  const recorrido = (kmFin&&kmFin>kmIni) ? kmFin-kmIni : null;
+  const rutas = getSelectedRoutes();
+  const notas = gi('f-notas').trim();
+
+  const reg = {
+    id: uid(),
+    condId: currentCond.id,
+    condNombre: currentCond.nombre,
+    uniId,
+    uniNombre: u?.nombre||'',
+    uniPlaca: u?.placa||'',
+    uniMarca: u?.marca||'',
+    fecha, horaIni, horaFin: horaFin||null,
+    kmIni, kmFin, recorrido,
+    rutas, notas,
+    ts: Date.now()
+  };
+
+  const regs = load('registros');
+  regs.push(reg);
+  save('registros', regs);
+
+  // Actualizar km actual de la unidad
+  if(kmFin){
+    const uIdx = unis.findIndex(x=>x.id===uniId);
+    if(uIdx>=0){ unis[uIdx].kmActual = kmFin; save('unidades',unis); }
+  }
+
+  // Reset form
+  si('f-km-ini',''); si('f-km-fin',''); si('f-notas',''); si('f-ruta-custom','');
+  si('f-hora-ini',nowTime()); si('f-hora-fin',nowTime());
+  fillRouteOptions(); fillUnidadSelect();
+  si('f-unidad', uniId); onUnidadChange(); // mantener unidad seleccionada
+  $('kmprev').style.display='none';
+  $('err-km-ini').classList.remove('on'); $('err-km-fin').classList.remove('on');
+  $('f-km-ini').classList.remove('err'); $('f-km-fin').classList.remove('err');
+
+  renderLoginList();
+  showToast('✓ Registro guardado' + (recorrido?' · '+recorrido.toLocaleString()+' km':''));
+
+  // Auto-export silencioso (append a Excel en memoria)
+  autoSaveExcel(reg, u);
+}
+
+// ══════════════════════════════════════════════════
+//  AUTO-GUARDADO EXCEL (trigger manual descarga)
+//  Nota: los navegadores no permiten escritura directa
+//  a disco; la mejor opción es Google Sheets vía API.
+//  Por eso ofrecemos un "auto-download" al guardar.
+// ══════════════════════════════════════════════════
+function autoSaveExcel(reg, uni){
+  // Generar Excel individual de la unidad con TODOS sus registros
+  const regs = load('registros').filter(r=>r.uniId===reg.uniId&&r.kmFin);
+  if(!regs.length) return;
+  // Solo descarga si hay km final (registro completo)
+  if(!reg.kmFin) return;
+  // Descomenta la siguiente línea si deseas descarga automática cada vez que se guarda:
+  // exportarPorUnidad(reg.uniId, '');
+}
+
+// ══════════════════════════════════════════════════
+//  HISTORIAL
+// ══════════════════════════════════════════════════
+function renderHist(){
+  if(!currentCond) return;
+  const regs = load('registros').filter(r=>r.condId===currentCond.id).sort((a,b)=>b.ts-a.ts);
+  const ok = regs.filter(r=>r.kmFin);
+  const total = ok.reduce((a,r)=>a+(r.recorrido||0),0);
+  const hoyKm = ok.filter(r=>r.fecha===today()).reduce((a,r)=>a+(r.recorrido||0),0);
+  si('h-km',total.toLocaleString(),'textContent');
+  si('h-n',regs.length,'textContent');
+  si('h-hoy',hoyKm.toLocaleString(),'textContent');
+  si('h-prom',ok.length?Math.round(total/ok.length):0,'textContent');
+  const el=$('hist-list');
+  if(!regs.length){ el.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/></svg>Sin registros aún.</div>'; return; }
+  el.innerHTML=regs.slice(0,25).map(r=>`
+    <div class="rec">
+      <div class="rh">
+        <div>
+          <div class="rkm">${r.uniNombre} · ${(r.recorrido||0).toLocaleString()} km</div>
+          <div class="rdate">${r.fecha} &nbsp;·&nbsp; ${r.horaIni}${r.horaFin?' – '+r.horaFin:''}</div>
+          <div class="rdet">${r.kmIni.toLocaleString()} → ${r.kmFin?(r.kmFin.toLocaleString()):'—'}</div>
+          ${r.rutas&&r.rutas.length?`<div class="rroute">&#9654; ${r.rutas.join(', ')}</div>`:''}
+        </div>
+        <span class="tag ${r.kmFin?'tok':'tact'}">${r.kmFin?'✓':'Sin km fin'}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+//  PREVIEW MES
+// ══════════════════════════════════════════════════
+function renderPrev(){
+  if(!currentCond) return;
+  const mes = gi('r-mes'); if(!mes) return;
+  const regs = load('registros').filter(r=>r.condId===currentCond.id&&r.kmFin&&r.fecha.startsWith(mes));
+  const el = $('prev-body');
+  if(!regs.length){ el.innerHTML='<div class="empty" style="padding:8px 0;">Sin registros en este mes</div>'; return; }
+  const total = regs.reduce((a,r)=>a+(r.recorrido||0),0);
+  el.innerHTML=`
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:.5px solid var(--bd);font-size:13px;"><span style="color:var(--ts)">Total km</span><strong>${total.toLocaleString()} km</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:.5px solid var(--bd);font-size:13px;"><span style="color:var(--ts)">Registros</span><strong>${regs.length}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;"><span style="color:var(--ts)">Km promedio</span><strong>${Math.round(total/regs.length).toLocaleString()} km</strong></div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  EXCEL — constructor de hoja
+// ══════════════════════════════════════════════════
+function buildSheet(label, datos, mesStr, tipo, tipoVal){
+  const hdr=[
+    ['REPORTE DE RECORRIDOS - FLEETTRACK','','','','','','','',''],
+    [tipo+':',tipoVal,'','Período:',mesStr,'','Generado:',new Date().toLocaleDateString('es-PE'),''],
+    [''],
+    ['N°','Fecha','Unidad','Placa','Km Inicial','Km Final','Recorrido (km)','Hora Inicio','Hora Fin','Conductor','Ruta(s)','Notas']
+  ];
+  const rows = datos.map((r,i)=>[
+    i+1, r.fecha, r.uniNombre, r.uniPlaca,
+    r.kmIni, r.kmFin||'—', r.recorrido||'—',
+    r.horaIni, r.horaFin||'—', r.condNombre,
+    Array.isArray(r.rutas)?r.rutas.join(' | '):r.rutas||'',
+    r.notas||''
+  ]);
+  const total = datos.filter(r=>r.kmFin).reduce((a,r)=>a+(r.recorrido||0),0);
+  const ftr=[[''],['TOTAL KM:',total,'','REGISTROS:',datos.length]];
+  const ws=XLSX.utils.aoa_to_sheet([...hdr,...rows,...ftr]);
+  ws['!cols']=[{wch:5},{wch:12},{wch:14},{wch:12},{wch:13},{wch:12},{wch:14},{wch:11},{wch:10},{wch:20},{wch:28},{wch:24}];
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:8}}];
+  return ws;
+}
+
+function exportarMio(){
+  if(!currentCond) return;
+  const mes = gi('r-mes');
+  const regs = load('registros').filter(r=>r.condId===currentCond.id&&(!mes||r.fecha.startsWith(mes)));
+  if(!regs.length){ showToast('Sin registros para exportar'); return; }
+  const mesStr = mes?new Date(mes+'-01').toLocaleDateString('es-PE',{year:'numeric',month:'long'}):'Todos';
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, buildSheet('cond',regs,mesStr,'Conductor',currentCond.nombre), currentCond.nombre.slice(0,31));
+  XLSX.writeFile(wb,`FleetTrack_${currentCond.nombre.replace(/\s+/g,'_')}_${mes||'Completo'}.xlsx`);
+  showToast('✓ Excel descargado');
+}
+
+function exportarPorUnidad(uniId, mes){
+  const unis = load('unidades');
+  const u = unis.find(x=>x.id===uniId);
+  const regs = load('registros').filter(r=>r.uniId===uniId&&(!mes||r.fecha.startsWith(mes)));
+  if(!regs.length){ showToast('Sin datos para '+u?.nombre); return; }
+  const mesStr = mes?new Date(mes+'-01').toLocaleDateString('es-PE',{year:'numeric',month:'long'}):'Todos';
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, buildSheet('uni',regs,mesStr,'Unidad',u?.nombre+' · '+u?.placa), (u?.nombre||'Uni').slice(0,31));
+  XLSX.writeFile(wb,`FleetTrack_${(u?.nombre||'uni').replace(/\s+/g,'_')}_${mes||'Completo'}.xlsx`);
+  showToast('✓ Excel: '+(u?.nombre||''));
+}
+
+function exportarPorCond(condId, mes){
+  const conds = load('conductores');
+  const c = conds.find(x=>x.id===condId);
+  const regs = load('registros').filter(r=>r.condId===condId&&(!mes||r.fecha.startsWith(mes)));
+  if(!regs.length){ showToast('Sin datos para '+c?.nombre); return; }
+  const mesStr = mes?new Date(mes+'-01').toLocaleDateString('es-PE',{year:'numeric',month:'long'}):'Todos';
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, buildSheet('cond',regs,mesStr,'Conductor',c?.nombre), (c?.nombre||'Cond').slice(0,31));
+  XLSX.writeFile(wb,`FleetTrack_Cond_${(c?.nombre||'').replace(/\s+/g,'_')}_${mes||'Completo'}.xlsx`);
+  showToast('✓ Excel: '+(c?.nombre||''));
+}
+
+function exportarFlota(){
+  const mes = gi('adm-exmes');
+  const unis = load('unidades');
+  const wb=XLSX.utils.book_new(); let ok=false;
+  const mesStr = mes?new Date(mes+'-01').toLocaleDateString('es-PE',{year:'numeric',month:'long'}):'Todos';
+  unis.forEach(u=>{
+    const regs = load('registros').filter(r=>r.uniId===u.id&&(!mes||r.fecha.startsWith(mes)));
+    if(!regs.length) return; ok=true;
+    XLSX.utils.book_append_sheet(wb, buildSheet('uni',regs,mesStr,'Unidad',u.nombre+' · '+u.placa), u.nombre.slice(0,31));
+  });
+  if(!ok){ showToast('Sin datos para exportar'); return; }
+  XLSX.writeFile(wb,`FleetTrack_Flota_${mes||'Completo'}.xlsx`);
+  showToast('✓ Reporte de flota descargado');
+}
+
+// ══════════════════════════════════════════════════
+//  ADMIN — HOY
+// ══════════════════════════════════════════════════
+function renderAdmHoy(){
+  const regs = load('registros');
+  const hoy = today();
+  const hoyR = regs.filter(r=>r.fecha===hoy);
+  const mes  = new Date().toISOString().slice(0,7);
+  const kmH  = hoyR.filter(r=>r.kmFin).reduce((a,r)=>a+(r.recorrido||0),0);
+  const kmM  = regs.filter(r=>r.kmFin&&r.fecha.startsWith(mes)).reduce((a,r)=>a+(r.recorrido||0),0);
+  si('a-kmh',kmH.toLocaleString(),'textContent'); si('a-nh',hoyR.length,'textContent');
+  si('a-kmes',kmM.toLocaleString(),'textContent'); si('a-total',regs.length,'textContent');
+
+  const unis = load('unidades');
+  const el=$('adm-hoy-list');
+  if(!hoyR.length){ el.innerHTML='<div class="empty" style="padding:10px 0;">Sin actividad hoy</div>'; return; }
+  el.innerHTML=hoyR.sort((a,b)=>b.ts-a.ts).map(r=>`
+    <div class="rec">
+      <div class="rh">
+        <div>
+          <div class="rkm">${r.uniNombre} · ${(r.recorrido||0).toLocaleString()} km</div>
+          <div class="rdate"><b style="font-family:var(--mono);font-size:11px;">${r.uniPlaca}</b> · ${r.condNombre}</div>
+          <div class="rdet">${r.kmIni.toLocaleString()} → ${r.kmFin?(r.kmFin.toLocaleString()):'—'} · ${r.horaIni}${r.horaFin?' – '+r.horaFin:''}</div>
+          ${r.rutas&&r.rutas.length?`<div class="rroute">&#9654; ${r.rutas.join(', ')}</div>`:''}
+        </div>
+        <span class="tag ${r.kmFin?'tok':'tact'}">${r.kmFin?'✓':'Sin km fin'}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+//  ADMIN — CONDUCTORES CRUD
+// ══════════════════════════════════════════════════
+function renderCondList(){
+  const conds = load('conductores');
+  const regs = load('registros');
+  const el = $('cond-list');
+  if(!conds.length){ el.innerHTML='<div class="empty" style="padding:10px 0;">Sin conductores</div>'; return; }
+  el.innerHTML=conds.map((c,i)=>{
+    const cc=condColor(i);
+    const n=regs.filter(r=>r.condId===c.id).length;
+    return `<div class="admrow">
+      <div class="av av-sm" style="background:${cc.bg};color:${cc.c}">${initials(c.nombre)}</div>
+      <div class="ainfo"><div class="aname">${c.nombre}</div><div class="ameta">${c.tel||'Sin teléfono'} · ${n} registros</div></div>
+      <div class="aact">
+        <button class="ibtn ibtn-e" onclick="editCond('${c.id}')">&#9998;</button>
+        <button class="ibtn ibtn-d" onclick="deleteCond('${c.id}')">&#215;</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openModalCond(){ editId.cond=null; si('mc-title','Agregar conductor','textContent'); si('mc-nombre',''); si('mc-tel',''); openModal('modal-cond'); }
+function editCond(id){ const c=load('conductores').find(x=>x.id===id); if(!c)return; editId.cond=id; si('mc-title','Editar conductor','textContent'); si('mc-nombre',c.nombre); si('mc-tel',c.tel||''); openModal('modal-cond'); }
+function guardarCond(){
+  const nombre=gi('mc-nombre').trim(), tel=gi('mc-tel').trim();
+  if(!nombre){ showToast('Ingresa el nombre'); return; }
+  let conds=load('conductores');
+  if(editId.cond){ const i=conds.findIndex(c=>c.id===editId.cond); if(i>=0){conds[i].nombre=nombre;conds[i].tel=tel;} }
+  else conds.push({id:uid(),nombre,tel});
+  save('conductores',conds); cerrarModal('modal-cond'); renderCondList(); renderLoginList();
+  showToast(editId.cond?'✓ Conductor actualizado':'✓ Conductor agregado');
+}
+function deleteCond(id){
+  if(!confirm('¿Eliminar este conductor? Sus registros se conservarán.')) return;
+  save('conductores',load('conductores').filter(c=>c.id!==id));
+  renderCondList(); renderLoginList(); showToast('Conductor eliminado');
+}
+
+// ══════════════════════════════════════════════════
+//  ADMIN — UNIDADES CRUD
+// ══════════════════════════════════════════════════
+function renderUniList(){
+  const unis = load('unidades');
+  const regs = load('registros');
+  const el=$('uni-list');
+  if(!unis.length){ el.innerHTML='<div class="empty" style="padding:10px 0;">Sin unidades</div>'; return; }
+  el.innerHTML=unis.map(u=>{
+    const n=regs.filter(r=>r.uniId===u.id).length;
+    const kmAct = regs.filter(r=>r.uniId===u.id&&r.kmFin).sort((a,b)=>b.ts-a.ts)[0]?.kmFin || u.kmActual;
+    return `<div class="admrow">
+      <div class="vbico" style="width:34px;height:34px;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="white" style="width:18px;height:18px;"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg></div>
+      <div class="ainfo">
+        <div class="aname">${u.nombre} · <span style="font-family:var(--mono);font-size:12px;">${u.placa}</span></div>
+        <div class="ameta">${u.marca} · ${n} registros · Km actual: ${kmAct.toLocaleString()}</div>
+      </div>
+      <div class="aact">
+        <button class="ibtn ibtn-e" onclick="editUni('${u.id}')">&#9998;</button>
+        <button class="ibtn ibtn-d" onclick="deleteUni('${u.id}')">&#215;</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openModalUni(){ editId.uni=null; si('mu-title','Agregar unidad','textContent'); ['mu-nombre','mu-placa','mu-marca','mu-km'].forEach(id=>si(id,'')); openModal('modal-uni'); }
+function editUni(id){ const u=load('unidades').find(x=>x.id===id); if(!u)return; editId.uni=id; si('mu-title','Editar unidad','textContent'); si('mu-nombre',u.nombre); si('mu-placa',u.placa); si('mu-marca',u.marca); si('mu-km',u.kmActual||''); openModal('modal-uni'); }
+function guardarUni(){
+  const nombre=gi('mu-nombre').trim(), placa=gi('mu-placa').trim().toUpperCase(), marca=gi('mu-marca').trim(), kmActual=parseInt(gi('mu-km'))||0;
+  if(!nombre||!placa){ showToast('Nombre y placa son obligatorios'); return; }
+  let unis=load('unidades');
+  if(editId.uni){ const i=unis.findIndex(u=>u.id===editId.uni); if(i>=0){unis[i].nombre=nombre;unis[i].placa=placa;unis[i].marca=marca;unis[i].kmActual=kmActual||unis[i].kmActual;} }
+  else unis.push({id:uid(),nombre,placa,marca,kmActual});
+  save('unidades',unis); cerrarModal('modal-uni'); renderUniList();
+  showToast(editId.uni?'✓ Unidad actualizada':'✓ Unidad agregada');
+}
+function deleteUni(id){
+  if(!confirm('¿Eliminar esta unidad? Sus registros se conservarán.')) return;
+  save('unidades',load('unidades').filter(u=>u.id!==id));
+  renderUniList(); showToast('Unidad eliminada');
+}
+
+// ══════════════════════════════════════════════════
+//  ADMIN — RUTAS CRUD
+// ══════════════════════════════════════════════════
+function renderRutaList(){
+  const rutas=load('rutas');
+  const el=$('ruta-list');
+  if(!rutas.length){ el.innerHTML='<div class="empty" style="padding:10px 0;">Sin rutas configuradas</div>'; return; }
+  el.innerHTML=rutas.map(r=>`
+    <div class="admrow">
+      <div style="flex:1;font-size:14px;">&#9654; ${r.nombre}</div>
+      <div class="aact">
+        <button class="ibtn ibtn-e" onclick="editRuta('${r.id}')">&#9998;</button>
+        <button class="ibtn ibtn-d" onclick="deleteRuta('${r.id}')">&#215;</button>
+      </div>
+    </div>`).join('');
+}
+function openModalRuta(){ editId.ruta=null; si('mr-title','Agregar ruta','textContent'); si('mr-nombre',''); openModal('modal-ruta'); }
+function editRuta(id){ const r=load('rutas').find(x=>x.id===id); if(!r)return; editId.ruta=id; si('mr-title','Editar ruta','textContent'); si('mr-nombre',r.nombre); openModal('modal-ruta'); }
+function guardarRuta(){
+  const nombre=gi('mr-nombre').trim();
+  if(!nombre){ showToast('Escribe el nombre de la ruta'); return; }
+  let rutas=load('rutas');
+  if(editId.ruta){ const i=rutas.findIndex(r=>r.id===editId.ruta); if(i>=0) rutas[i].nombre=nombre; }
+  else rutas.push({id:uid(),nombre});
+  save('rutas',rutas); cerrarModal('modal-ruta'); renderRutaList();
+  showToast(editId.ruta?'✓ Ruta actualizada':'✓ Ruta agregada');
+}
+function deleteRuta(id){
+  if(!confirm('¿Eliminar esta ruta?')) return;
+  save('rutas',load('rutas').filter(r=>r.id!==id));
+  renderRutaList(); showToast('Ruta eliminada');
+}
+
+// ══════════════════════════════════════════════════
+//  ADMIN — EXPORTAR BTNS
+// ══════════════════════════════════════════════════
+function renderExpBtns(){
+  const unis=load('unidades'), conds=load('conductores');
+  const mes=gi('adm-exmes');
+
+  $('exp-uni-btns').innerHTML=unis.map(u=>`
+    <button class="ebtn" onclick="exportarPorUnidad('${u.id}',gi('adm-exmes'))">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/></svg>
+      ${u.nombre} · ${u.placa} · ${u.marca}
+    </button>`).join('');
+
+  $('exp-cond-btns').innerHTML=conds.map(c=>`
+    <button class="ebtn" onclick="exportarPorCond('${c.id}',gi('adm-exmes'))">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/></svg>
+      ${c.nombre}
+    </button>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+//  ADMIN — OPEN
+// ══════════════════════════════════════════════════
+function openAdmin(){
+  renderAdmHoy();
+  si('adm-fecha', new Date().toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric'}), 'textContent');
+  si('adm-exmes', new Date().toISOString().slice(0,7));
+  document.querySelectorAll('#s-admin .tab').forEach((t,i)=>t.classList.toggle('on',i===0));
+  ['adm-hoy','adm-cond','adm-uni','adm-rutas','adm-exp'].forEach((id,i)=>$(id).style.display=i===0?'block':'none');
+  goTo('s-admin');
+}
+
+// ══════════════════════════════════════════════════
+//  PWA
+// ══════════════════════════════════════════════════
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferPWA=e; $('ibanner').classList.add('on');
+});
+function installPWA(){ if(!deferPWA)return; deferPWA.prompt(); deferPWA.userChoice.then(()=>{deferPWA=null;$('ibanner').classList.remove('on');}); }
+if('serviceWorker'in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  initData();
+  renderLoginList();
+});
+</script>
+</body>
+</html>
