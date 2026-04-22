@@ -759,7 +759,25 @@ function guardarRegistro(){
     rutas, notas,
     ts: Date.now()
   };
-
+// 🔥 ENVIAR A GOOGLE SHEETS
+fetch("AQUI_TU_URL", {
+  method: "POST",
+  body: JSON.stringify({
+    id: reg.id,
+    conductor: reg.condNombre,
+    unidad: reg.uniNombre,
+    kmIni: reg.kmIni,
+    kmFin: reg.kmFin,
+    fecha: reg.fecha,
+    horaIni: reg.horaIni,
+    horaFin: reg.horaFin,
+    rutas: reg.rutas.join(", "),
+    notas: reg.notas
+  })
+})
+.then(res => res.text())
+.then(data => console.log("Guardado en Google:", data))
+.catch(err => console.error(err));
   const regs = load('registros');
   regs.push(reg);
   save('registros', regs);
